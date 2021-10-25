@@ -14,9 +14,10 @@ public class Straight extends Hand {
         }
         this.sort();
         final String cardsStr = "34567890JQKA2";
+        final String[] RANKS = { "A", "2", "3", "4", "5", "6", "7", "8", "9", "0", "J", "Q", "K" };
         String handStr = "";
         for (int i = 0; i < 5; i++) {
-            handStr += this.getCard(i).toString();
+            handStr += RANKS[this.getCard(i).getRank()];
         }
         if (cardsStr.contains(handStr)) {
             return true;

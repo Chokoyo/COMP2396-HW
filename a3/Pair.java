@@ -8,7 +8,7 @@ public class Pair extends Hand {
         if (this.size() != 2) {
             return false;
         }
-        if (this.getCard(0) == this.getCard(1)) {
+        if (this.getCard(0).getRank() == this.getCard(1).getRank()) {
             return true;
         }
         return false;

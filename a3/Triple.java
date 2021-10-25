@@ -8,7 +8,8 @@ public class Triple extends Hand {
         if (this.size() != 3) {
             return false;
         }
-        if (this.getCard(0) == this.getCard(1) && this.getCard(2) == this.getCard(1)) {
+        if (this.getCard(0).getRank() == this.getCard(1).getRank() &&
+                this.getCard(2).getRank() == this.getCard(1).getRank()) {
             return true;
         }
         return false;

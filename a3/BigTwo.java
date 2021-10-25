@@ -3,12 +3,14 @@ import java.util.ArrayList;
 public class BigTwo implements CardGame{
 
     // private variables
-    private int numOfPlayers; // an int to store the number of player
+    private int numOfPlayers = 4; // an int to store the number of player
     private Deck deck; // a Deck object to store the cards
     private ArrayList<CardGamePlayer> playerList = new ArrayList<CardGamePlayer>(); // an ArrayList to store a list of players
     private ArrayList<Hand> handsOnTable = new ArrayList<Hand>(); // an ArrayList to store a list of hands played on table
     private int currentPlayerIdx; // the index of the current player
     private BigTwoUI ui; // the ui object for providing the game interface
+
+    private boolean illegalMove = false;
 
     public BigTwo() {
         for (int i = 0; i < 4; i++) {
@@ -60,30 +62,37 @@ public class BigTwo implements CardGame{
             ui.repaint();
             ui.promptActivePlayer();
         }
+        ui.printMsg("Game ends\n");
+        for (int i = 0; i < 4; i++) {
+            if (currentPlayerIdx == i) {
+                ui.printMsg("Player " + i + " wins the game.\n");
+            } else {
+                ui.printMsg("Player " + i + " has " + playerList.get(i).getNumOfCards() + " cards in hand.\n");
+            }
+        }
     }
 
     public void makeMove(int playerIdx, int[] cardIdx) {
         checkMove(playerIdx, cardIdx);
+        if (illegalMove) return;
         CardList card = playerList.get(playerIdx).play(cardIdx);
         if (cardIdx != null) {
             card.sort();
             Hand thisHand = composeHand(playerList.get(playerIdx), card);
             if (thisHand != null && !checkMoveHelper(playerIdx, thisHand)) {
-                currentPlayerIdx = (currentPlayerIdx + 1) % 4;
-
                 playerList.get(playerIdx).removeCards(card);
+                if  (playerList.get(playerIdx).getNumOfCards() == 0) return;
+                currentPlayerIdx = (currentPlayerIdx + 1) % 4;
                 handsOnTable.add(thisHand);
 
                 ui.printMsg("{" + thisHand.getType() + "} ");
                 ui = new BigTwoUI(this);
                 ui.setActivePlayer(currentPlayerIdx);
-                for (int i = 0; i < cardIdx.length; i++) {
-                    ui.printMsg(card + "\n");
-                }
+                ui.printMsg(card + "\n");
             }
-        } else { // when cardIdx is null, and the player is not the last player
+        } else if (!handsOnTable.isEmpty()) { // when cardIdx is null, and the player is not the last player
             Hand lastHand = handsOnTable.get(handsOnTable.size() - 1);
-            if (!lastHand.getPlayer().equals(playerList.get(playerIdx)) {
+            if (!lastHand.getPlayer().equals(playerList.get(playerIdx))) {
                 currentPlayerIdx = (currentPlayerIdx + 1) % 4;
                 ui.setActivePlayer(currentPlayerIdx);
                 ui.printMsg("{Pass}\n");
@@ -93,16 +102,29 @@ public class BigTwo implements CardGame{
     }
 
     public void checkMove(int playerIdx, int[] cardIdx) {
+        illegalMove = false;
+        if (handsOnTable.isEmpty() && cardIdx == null) {
+            ui.printMsg("Not a legal move!!!\n");
+            ui.promptActivePlayer();
+            illegalMove = true;
+            return;
+        }
         CardList card = playerList.get(playerIdx).play(cardIdx);
         if (cardIdx != null) {
             card.sort();
             Hand thisHand = composeHand(playerList.get(playerIdx), card);
             if (thisHand == null && cardIdx.length != 0 || checkMoveHelper(playerIdx, thisHand)) { //
                 ui.printMsg("Not a legal move!!!\n");
+                ui.promptActivePlayer();
+                illegalMove = true;
+                return;
             }
         } else if (!handsOnTable.isEmpty() &&
-                handsOnTable.get(handsOnTable.size() - 1).equals(playerList.get(playerIdx).getCardsInHand())) {
+                handsOnTable.get(handsOnTable.size() - 1).getPlayer().equals(playerList.get(playerIdx))) {
             ui.printMsg("Not a legal move!!!\n");
+            ui.promptActivePlayer();
+            illegalMove = true;
+            return;
         }
     }
 

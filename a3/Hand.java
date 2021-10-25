@@ -22,7 +22,7 @@ public abstract class Hand extends CardList{
 
     public boolean beats (Hand hand) {
         if (this.getType().equals(hand.getType())) {
-            return (this.getTopCard() > hand.getTopCard())? true : false;
+            return (this.getTopCard().compareTo(hand.getTopCard()) > 0)? true : false;
         }
         
         final ArrayList<String> handTypes = new ArrayList<String>(
@@ -32,7 +32,7 @@ public abstract class Hand extends CardList{
         if (!handTypes.contains(this.getType())) {
             return false;
         } else if (handTypes.indexOf(this.getType()) > handTypes.indexOf(hand.getType())) {
-            return true
+            return true;
         }
         return false;
     }
