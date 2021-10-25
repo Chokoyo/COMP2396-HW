@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public abstract class Hand extends CardList{
     public CardGamePlayer player;
 
@@ -15,6 +18,23 @@ public abstract class Hand extends CardList{
     public Card getTopCard() {
         this.sort();
         return getCard(this.size() - 1);
+    }
+
+    public boolean beats (Hand hand) {
+        if (this.getType().equals(hand.getType())) {
+            return (this.getTopCard() > hand.getTopCard())? true : false;
+        }
+        
+        final ArrayList<String> handTypes = new ArrayList<String>(
+                Arrays.asList( "Stright", "Flush", "FullHouse", "Quad", "StraightFlush")
+        );
+        
+        if (!handTypes.contains(this.getType())) {
+            return false;
+        } else if (handTypes.indexOf(this.getType()) > handTypes.indexOf(hand.getType())) {
+            return true
+        }
+        return false;
     }
 
     public abstract boolean isValid();
