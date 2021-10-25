@@ -65,25 +65,30 @@ public class BigTwo implements CardGame{
     public void makeMove(int playerIdx, int[] cardIdx) {
         checkMove(playerIdx, cardIdx);
         CardList card = playerList.get(playerIdx).play(cardIdx);
-        card.sort();
-        Hand thisHand = composeHand(playerList.get(playerIdx), card);
-        if (thisHand != null && !checkMoveHelper(playerIdx, thisHand)) {
-            currentPlayerIdx = (currentPlayerIdx + 1) % 4;
+        if (cardIdx != null) {
+            card.sort();
+            Hand thisHand = composeHand(playerList.get(playerIdx), card);
+            if (thisHand != null && !checkMoveHelper(playerIdx, thisHand)) {
+                currentPlayerIdx = (currentPlayerIdx + 1) % 4;
 
-            playerList.get(playerIdx).removeCards(card);
-            handsOnTable.add(thisHand);
+                playerList.get(playerIdx).removeCards(card);
+                handsOnTable.add(thisHand);
 
-            ui.printMsg("{" + thisHand.getType() + "} ");
-            ui = new BigTwoUI(this);
-            ui.setActivePlayer(currentPlayerIdx);
-            for (int i = 0; i < cardIdx.length; i++) {
-                ui.printMsg(card + "\n");
+                ui.printMsg("{" + thisHand.getType() + "} ");
+                ui = new BigTwoUI(this);
+                ui.setActivePlayer(currentPlayerIdx);
+                for (int i = 0; i < cardIdx.length; i++) {
+                    ui.printMsg(card + "\n");
+                }
             }
-        }
-        if (cardIdx.length == 0) { // TODO: Pass first, or sort() will fail
-            currentPlayerIdx = (currentPlayerIdx + 1) % 4;
-            ui.setActivePlayer(currentPlayerIdx);
-            ui.printMsg("{Pass}\n");
+        } else { // when cardIdx is null, and the player is not the last player
+            Hand lastHand = handsOnTable.get(handsOnTable.size() - 1);
+            if (!lastHand.getPlayer().equals(playerList.get(playerIdx)) {
+                currentPlayerIdx = (currentPlayerIdx + 1) % 4;
+                ui.setActivePlayer(currentPlayerIdx);
+                ui.printMsg("{Pass}\n");
+            }
+
         }
     }
 
@@ -104,11 +109,8 @@ public class BigTwo implements CardGame{
     private boolean checkMoveHelper(int playerIdx, Hand thisHand) {
         if (handsOnTable.isEmpty()) return false;
         Hand lastHand = handsOnTable.get(handsOnTable.size() - 1);
-        if (!lastHand.equals(playerList.get(playerIdx).getCardsInHand())) {
-            if (lastHand.getType() != thisHand.getType() ||
-                    lastHand.getTopCard().compareTo(thisHand.getTopCard()) > 0) {
-                return true;
-            }
+        if (!lastHand.getPlayer().equals(playerList.get(playerIdx)) && !thisHand.beats(lastHand)) {
+            return true;
         }
         return false;
     }
