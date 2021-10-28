@@ -1,11 +1,28 @@
+/**
+ * This class is a subclass of the Hand class. It models the full house
+ * hand type in the BigTwo game, and also checks whether a hand is full house.
+ *
+ * @author Zhuangcheng Gu
+ */
 public class FullHouse extends Hand {
-    private int topCardRank;
+    private int topCardRank; // the rank of the top card
 
+    /**
+     * Create an instance of the FullHouse card by calling the superclass
+     * constructor.
+     *
+     * @param player of the hand
+     * @param card list of the hand
+     */
     public FullHouse(CardGamePlayer player, CardList card) {
         super(player, card);
     }
 
-    @Override
+    /**
+     * Return whether the current hand is a valid full house hand.
+     *
+     * @return whether the current hand is a valid full house hand
+     */
     public boolean isValid() {
         if (this.size() != 5) {
             return false;
@@ -40,7 +57,11 @@ public class FullHouse extends Hand {
         return false;
     }
 
-    @Override
+    /**
+     * Return the topCard of the hand according to the big two game rule.
+     *
+     * @return topCard of the hand according to the big two game rule
+     */
     public Card getTopCard() {
         this.isValid();
         Card topCard = new Card(0,3);
@@ -52,7 +73,11 @@ public class FullHouse extends Hand {
         return topCard;
     }
 
-    @Override
+    /**
+     * Return the type of current hand.
+     *
+     * @return the type of current hand "FullHouse"
+     */
     public String getType() {
         return "FullHouse";
     }

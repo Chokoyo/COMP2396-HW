@@ -1,13 +1,27 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-
+/**
+ * This class is a subclass of the Hand class. It models the straight
+ * hand type in the BigTwo game, and also checks whether a hand is straight.
+ *
+ * @author Zhuangcheng Gu
+ */
 public class Straight extends Hand {
 
+    /**
+     * Create an instance of the Straight card by calling the superclass
+     * constructor.
+     *
+     * @param player of the hand
+     * @param card list of the hand
+     */
     public Straight(CardGamePlayer player, CardList card) {
         super(player, card);
     }
 
-    @Override
+    /**
+     * Return whether the current hand is a valid straight hand.
+     *
+     * @return whether the current hand is a valid straight hand
+     */
     public boolean isValid() {
         if (this.size() != 5) {
             return false;
@@ -19,13 +33,14 @@ public class Straight extends Hand {
         for (int i = 0; i < 5; i++) {
             handStr += RANKS[this.getCard(i).getRank()];
         }
-        if (cardsStr.contains(handStr)) {
-            return true;
-        }
-        return false;
+        return cardsStr.contains(handStr);
     }
 
-    @Override
+    /**
+     * Return the type of current hand.
+     *
+     * @return the type of current hand "Straight"
+     */
     public String getType() {
         return "Straight";
     }

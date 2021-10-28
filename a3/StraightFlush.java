@@ -1,9 +1,27 @@
+/**
+ * This class is a subclass of the Hand class. It models the straight flush
+ * hand type in the BigTwo game, and also checks whether a hand is straight flush.
+ *
+ * @author Zhuangcheng Gu
+ */
 public class StraightFlush extends Hand {
+
+    /**
+     * Create an instance of the StraightFlush card by calling the superclass
+     * constructor.
+     *
+     * @param player of the hand
+     * @param card list of the hand
+     */
     public StraightFlush(CardGamePlayer player, CardList card) {
         super(player, card);
     }
 
-    @Override
+    /**
+     * Return whether the current hand is a valid straight flush hand.
+     *
+     * @return whether the current hand is a valid straight flush hand
+     */
     public boolean isValid() {
         if (this.size() != 5) {
             return false;
@@ -27,7 +45,11 @@ public class StraightFlush extends Hand {
         return false;
     }
 
-    @Override
+    /**
+     * Return the type of current hand.
+     *
+     * @return the type of current hand "StraightFlush"
+     */
     public String getType() {
         return "StraightFlush";
     }
