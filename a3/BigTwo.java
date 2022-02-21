@@ -17,7 +17,6 @@ public class BigTwo implements CardGame{
     private int currentPlayerIdx; // the index of the current player
     private BigTwoUI ui; // the ui object for providing the game interface
 
-    private boolean illegalMove = false; // store whether the last move is illegal
 
     /**
      * The constructor of the BigTwo Object. It creates a BigTwo Object and
@@ -99,19 +98,8 @@ public class BigTwo implements CardGame{
             }
             playerList.get(i).getCardsInHand().sort();
         }
-
-        while (!endOfGame()) {
-            ui.repaint();
-            ui.promptActivePlayer();
-        }
-        ui.printMsg("Game ends\n");
-        for (int i = 0; i < 4; i++) {
-            if (currentPlayerIdx == i) {
-                ui.printMsg("Player " + i + " wins the game.\n");
-            } else {
-                ui.printMsg("Player " + i + " has " + playerList.get(i).getNumOfCards() + " cards in hand.\n");
-            }
-        }
+        ui.repaint();
+        ui.promptActivePlayer();
     }
 
     /**
@@ -124,31 +112,6 @@ public class BigTwo implements CardGame{
      */
     public void makeMove(int playerIdx, int[] cardIdx) {
         checkMove(playerIdx, cardIdx);
-        if (illegalMove) return;
-        CardList card = playerList.get(playerIdx).play(cardIdx);
-        if (cardIdx != null) {
-            card.sort();
-            Hand thisHand = composeHand(playerList.get(playerIdx), card);
-            if (thisHand != null && !checkMoveHelper(playerIdx, thisHand)) {
-                playerList.get(playerIdx).removeCards(card);
-                if  (playerList.get(playerIdx).getNumOfCards() == 0) return;
-                currentPlayerIdx = (currentPlayerIdx + 1) % 4;
-                handsOnTable.add(thisHand);
-
-                ui.printMsg("{" + thisHand.getType() + "} ");
-                ui = new BigTwoUI(this);
-                ui.setActivePlayer(currentPlayerIdx);
-                ui.printMsg(card + "\n");
-            }
-        } else if (!handsOnTable.isEmpty()) { // when cardIdx is null, and the player is not the last player
-            Hand lastHand = handsOnTable.get(handsOnTable.size() - 1);
-            if (!lastHand.getPlayer().equals(playerList.get(playerIdx))) {
-                currentPlayerIdx = (currentPlayerIdx + 1) % 4;
-                ui.setActivePlayer(currentPlayerIdx);
-                ui.printMsg("{Pass}\n");
-            }
-
-        }
     }
 
     /**
@@ -159,29 +122,74 @@ public class BigTwo implements CardGame{
      * @param cardIdx   the list of the indices of the cards selected by the player
      */
     public void checkMove(int playerIdx, int[] cardIdx) {
-        illegalMove = false;
-        if (handsOnTable.isEmpty() && cardIdx == null) {
-            ui.printMsg("Not a legal move!!!\n");
-            ui.promptActivePlayer();
-            illegalMove = true;
-            return;
-        }
-        CardList card = playerList.get(playerIdx).play(cardIdx);
-        if (cardIdx != null) {
-            card.sort();
-            Hand thisHand = composeHand(playerList.get(playerIdx), card);
-            if (thisHand == null && cardIdx.length != 0 || checkMoveHelper(playerIdx, thisHand)) { //
+        boolean illegalMove = false;
+        CardList cards = null;
+        if (handsOnTable.isEmpty()) {
+            if (cardIdx == null){
                 ui.printMsg("Not a legal move!!!\n");
-                ui.promptActivePlayer();
                 illegalMove = true;
-                return;
+            } else {
+                cards = playerList.get(playerIdx).play(cardIdx);
+                boolean flag = false;
+                for (int i = 0; i < cards.size(); i++) {
+                    if (cards.getCard(i).equals(new BigTwoCard(0,2))) {
+                        flag = true;
+                    }
+                }
+                if (!flag) {
+                    ui.printMsg("Not a legal move!!!\n");
+                    illegalMove = true;
+                }
             }
-        } else if (!handsOnTable.isEmpty() &&
-                handsOnTable.get(handsOnTable.size() - 1).getPlayer().equals(playerList.get(playerIdx))) {
-            ui.printMsg("Not a legal move!!!\n");
+
+        } else {
+            cards = playerList.get(playerIdx).play(cardIdx);
+            if (cardIdx != null) {
+                cards.sort();
+                Hand thisHand = composeHand(playerList.get(playerIdx), cards);
+                if (thisHand == null && cardIdx.length != 0 || checkMoveHelper(playerIdx, thisHand)) { //
+                    ui.printMsg("Not a legal move!!!\n");
+                    illegalMove = true;
+                }
+            } else if (!handsOnTable.isEmpty() &&
+                    handsOnTable.get(handsOnTable.size() - 1).getPlayer().equals(playerList.get(playerIdx))) {
+                ui.printMsg("Not a legal move!!!\n");
+                illegalMove = true;
+            }
+        }
+        if (illegalMove) {
             ui.promptActivePlayer();
-            illegalMove = true;
-            return;
+        } else {
+            if (cardIdx == null) {
+                currentPlayerIdx = (currentPlayerIdx + 1) % 4;
+                ui.setActivePlayer(currentPlayerIdx);
+                ui.printMsg("{Pass}\n\n");
+                ui.repaint();
+                ui.promptActivePlayer();
+            } else {
+                Hand thisHand = composeHand(playerList.get(playerIdx), cards);
+                playerList.get(playerIdx).removeCards(cards);
+                currentPlayerIdx = (currentPlayerIdx + 1) % 4;
+                handsOnTable.add(thisHand);
+
+                ui.printMsg("{" + thisHand.getType() + "} ");
+                ui = new BigTwoUI(this);
+                ui.setActivePlayer(currentPlayerIdx);
+                ui.printMsg(cards + "\n\n");
+                if (endOfGame()) {
+                    ui.printMsg("Game ends\n");
+                    for (int i = 0; i < 4; i++) {
+                        if (currentPlayerIdx == (i + 1) % 4) {
+                            ui.printMsg("Player " + i + " wins the game.\n");
+                        } else {
+                            ui.printMsg("Player " + i + " has " + playerList.get(i).getNumOfCards() + " cards in hand.\n");
+                        }
+                    }
+                } else {
+                    ui.repaint();
+                    ui.promptActivePlayer();
+                }
+            }
         }
     }
 
